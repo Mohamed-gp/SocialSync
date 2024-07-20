@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -13,4 +13,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-}); 
+});
+
+const User = mongoose.models.user || mongoose.model("user", schema);
