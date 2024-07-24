@@ -5,7 +5,7 @@ export default function HeaderLeft() {
   return (
     <Link
       to="/"
-      className="text-base text-mainColor sm:text-xl font-bold sm:flex  hidden   items-center gap-1"
+      className="text-base xl:min-w-[240px] text-mainColor sm:text-xl font-bold sm:flex  hidden   items-center gap-1"
     >
       {/* <img src="/logo-symbol.png" alt="logo" width={20} height={20}/> */}
       {/* <span className="flex items-center justify-center text-white bg-mainColor p-2  rounded-xl text-lg">

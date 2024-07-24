@@ -29,3 +29,27 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.menu-bar {
+  animation: rotate 0.4s forwards linear;
+}
+.menu-x {
+  animation: scale 0.4s forwards linear;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes scale {
+  from {
+    scale: 0;
+  }
+  to {
+    scale: 1;
+  }
+}

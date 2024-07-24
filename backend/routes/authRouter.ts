@@ -1,10 +1,17 @@
 import { Router } from "express";
-import { register } from "../controllers/authControllers";
+import {
+  login,
+  register,
+  googleAuth,
+  logout,
+} from "../controllers/authControllers";
+import upload from "../utils/multer/multer";
 
 const router = Router();
 
-router.route("/register").post(register);
-router.route("/login").post(register);
-router.route("/google").post(register);
+router.route("/register").post(upload.single("image"), register);
+router.route("/login").post(login);
+router.route("/google").post(googleAuth);
+router.route("/logout").post(logout);
 
 export default router;
