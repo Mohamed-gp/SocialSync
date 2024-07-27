@@ -5,7 +5,7 @@ import { IRootState } from "../../store/store";
 const Footer = () => {
   const user = useSelector((state: IRootState) => state.auth.user);
   return (
-    <footer className="bg-white p-4 md:p-6 xl:p-8 xl:px-16 mt-6 ">
+    <footer className="bg-white p-4 md:p-6 xl:p-8 xl:px-16  ">
       <div className=" flex sm:flex-row flex-col md:items-center items-center md:justify-between  ">
         <ul className="flex items-center justify-center flex-wrap mb-6 md:mb-0">
           <li>

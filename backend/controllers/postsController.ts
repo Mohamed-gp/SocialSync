@@ -1,11 +1,11 @@
 import cloudinary from "../utils/cloudinary/cloudinary";
 import { NextFunction, Request, Response } from "express";
+import { authRequest } from "../interfaces/authInterface";
 import Post from "../models/Post";
 import User from "../models/User";
 import multer from "multer";
 import removeFiles from "../utils/fs/fs";
 import { verifyCreatePost } from "../utils/joi/postValidation";
-import { authRequest } from "../interfaces/authInterface";
 
 /**
  *
@@ -16,7 +16,12 @@ import { authRequest } from "../interfaces/authInterface";
  *
  */
 const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
-  const posts = await Post.find();
+  const posts = await Post.find().populate("user");
+  const my: any = [];
+  posts?.forEach((post: any) => {
+    // console.log(post.user.password);
+    post.user.password = "";
+  });
   return res.status(200).json({
     message: "fetched Successfully",
     data: posts,
@@ -49,22 +54,28 @@ const getSinglePost = async (
   }
 };
 
-const createPost = async (req: Request, res: Response, next: NextFunction) => {
+const createPost = async (
+  req: authRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     removeFiles();
-    const { error } = verifyCreatePost(req.body);
-    if (error) {
-      return res
-        .status(400)
-        .json({ message: error.details[0].message, data: null });
-    }
-    const files = req.files as Express.Multer.File[];
-    if (files.length != 4) {
+    if (req.user.id != req.body.userId || !req.body.userId) {
       return res.status(400).json({
-        message: "you must enter 4 images of the product",
+        message: "only user himself can create post",
         data: null,
       });
     }
+    if (!req.body.description && !req.files) {
+      return res.status(400).json({
+        message: "you must enter images or description of the post",
+        data: null,
+      });
+    }
+
+    const files = req.files as Express.Multer.File[];
+
     const pictures = files?.map((file) => {
       return file.path;
     });
@@ -72,13 +83,20 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
       pictures.map((picture) => cloudinary.uploader.upload(picture))
     );
     const pictureUrls = uploadedPictures.map((picture) => picture.url);
-    const product = await Post.create({
+
+    const post = await Post.create({
       description: req.body.description,
       images: pictureUrls,
+      user: req.body.userId,
     });
+
+    const user = await User.findById(req.user.id);
+    user.posts.push(post?._id);
+    await user.save();
+
     return res
       .status(201)
-      .json({ message: "created successfully", data: product });
+      .json({ message: "created successfully", data: post });
   } catch (error) {
     next(error);
   }
@@ -135,4 +153,31 @@ const savePost = async (
   }
 };
 
-export { getAllPosts, createPost, getSinglePost, deletePost, savePost };
+const getPostPictures = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { images } = await Post.findById(req.params.id);
+    if (!images) {
+      return res
+        .status(400)
+        .json({ data: null, message: "this post have no images" });
+    }
+    return res
+      .status(200)
+      .json({ data: images, message: "fetched successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  getAllPosts,
+  createPost,
+  getSinglePost,
+  deletePost,
+  savePost,
+  getPostPictures,
+};

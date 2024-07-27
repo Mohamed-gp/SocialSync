@@ -23,6 +23,10 @@ const schema = new mongoose.Schema(
     bio: {
       type: String,
     },
+    provider: {
+      type: String,
+      default: "credentials",
+    },
     profileViews: {
       type: Number,
       default: 0,
@@ -61,10 +65,12 @@ const schema = new mongoose.Schema(
       },
     ],
 
-    rooms: {
-      type: mongoose.Types.ObjectId,
-      ref: "Room",
-    },
+    rooms: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Room",
+      },
+    ],
   },
 
   {
@@ -72,5 +78,5 @@ const schema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.models.user || mongoose.model("user", schema);
+const User = mongoose.models.user || mongoose.model("User", schema);
 export default User;

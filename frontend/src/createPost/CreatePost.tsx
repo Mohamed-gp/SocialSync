@@ -3,33 +3,54 @@ import Dropzone from "react-dropzone";
 import { FaX } from "react-icons/fa6";
 import customAxios from "../axios/customAxios";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { IRootState } from "../store/store";
+import { authActions } from "../store/slices/authSlice";
 
-const CreatePost = () => {
+interface CreatePostProps {
+  getAllPosts: any;
+}
+const CreatePost = ({ getAllPosts }: any) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state: IRootState) => state.auth.user);
   const [createPostData, setCreatePostData] = useState({
     images: [],
     description: "",
+    loading: false,
   });
-  useEffect(() => {
-    console.log(createPostData);
-  }, [createPostData]);
+
   const createPostHandler = async () => {
+    setCreatePostData({ ...createPostData, loading: true });
+    const formData = new FormData();
+    formData.append("description", createPostData.description);
+    formData.append("userId", user?._id);
+    for (let i = 0; i < createPostData?.images?.length; i++) {
+      formData.append("images", createPostData?.images[i]);
+    }
+
     try {
-      const { data } = await customAxios.post("/posts", createPostData);
+      const { data } = await customAxios.post("/posts", formData);
+      toast.success(data.message);
     } catch (error: any) {
       console.log(error);
       toast.error(error.response.data.message);
+    } finally {
+      getAllPosts();
+      setCreatePostData({
+        images: [],
+        description: "",
+        loading: false,
+      });
     }
   };
   return (
     <div className="flex flex-col rounded-xl bg-white px-6 py-4 gap-6 ">
       <div className="flex gap-2 border-b-2 pb-4 items-center">
-        <div className="img">
-          <img
-            src="../../../public/avatar.jpg"
-            alt="avatar"
-            className="w-11 h-11 object-cover rounded-full"
-          />
-        </div>
+        <img
+          src={user?.profileImg}
+          alt="avatar"
+          className="w-11 h-11 object-cover rounded-full"
+        />
         <textarea
           value={createPostData.description}
           onChange={(e) =>
@@ -43,7 +64,7 @@ const CreatePost = () => {
         />
       </div>
       <div className="flex justify-between items-center gap-2">
-        <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+        <Dropzone>
           {({ getRootProps, getInputProps }) => (
             <section className="flex-1">
               <div {...getRootProps()}>
@@ -67,14 +88,19 @@ const CreatePost = () => {
         </Dropzone>
 
         <button
-          disabled={createPostData.description == ""}
+          onClick={() => createPostHandler()}
+          disabled={
+            (createPostData?.description == "" &&
+              createPostData.images.length == 0) ||
+            createPostData.loading
+          }
           className="disabled:opacity-50 disabled:cursor-not-allowed text-white bg-mainColor px-6 py-1 rounded-xl"
         >
-          Create
+          {createPostData.loading ? "Loading..." : "Create"}
         </button>
       </div>
       <div className="flex gap-2 flex-wrap">
-        {Array.from(createPostData.images).map((image) => (
+        {Array.from(createPostData?.images).map((image) => (
           <div className="w-16 h-16 rounded-full mx-auto relative">
             <img
               className="w-16 h-16 rounded-full mx-auto"

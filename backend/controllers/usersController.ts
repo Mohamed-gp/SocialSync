@@ -5,6 +5,8 @@ import removeFiles from "../utils/fs/fs";
 import { verifyUpdateUser } from "../utils/joi/userValidation";
 import cloudinary from "../utils/cloudinary/cloudinary";
 import nodemailer from "nodemailer";
+import { authRequest, ioResponse } from "../interfaces/authInterface";
+import { onlineUsers } from "../utils/socket/socket";
 
 const getUserByIdController = async (
   req: Request,
@@ -35,14 +37,8 @@ const updateUserData = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { username } = req.body;
+  const { username, location, occupation, bio } = req.body;
   try {
-    if (!username && !req.file) {
-      return res
-        .status(400)
-        .json({ data: null, message: "enter one of the inputs" });
-    }
-
     const { error } = verifyUpdateUser(req.body);
     if (error) {
       return res
@@ -51,10 +47,9 @@ const updateUserData = async (
     }
     const file = req.file as Express.Multer.File;
     let user = await User.findById(req.params.id).populate({
-      path: "cart",
+      path: "posts",
       populate: {
-        path: "product",
-        model: "Product",
+        path: "user",
       },
     });
 
@@ -73,6 +68,13 @@ const updateUserData = async (
     if (username != "") {
       user.username = username;
     }
+    if (location != "") {
+      user.location = location;
+    }
+    if (bio != "") {
+      user.bio = bio;
+    }
+
     await user.save();
     user.password = "";
     return res
@@ -82,7 +84,6 @@ const updateUserData = async (
     next(error);
   }
 };
-
 
 const subscribe = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -133,4 +134,92 @@ const subscribe = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { getUserByIdController, updateUserData, subscribe };
+const followUser = async (
+  req: authRequest,
+  res: ioResponse,
+  next: NextFunction
+) => {
+  const { firstUserId, secondUserId } = req.body;
+  if (!firstUserId || firstUserId != req.user.id) {
+    return res.status(403).json({ data: null, message: "only user himself" });
+  }
+  if (!secondUserId) {
+    return res.status(400).json({
+      data: null,
+      message: "something went wrong",
+    });
+  }
+
+  const firstUser = await User.findById(firstUserId);
+  const secondUser = await User.findById(secondUserId);
+  if (!firstUser) {
+    return res
+      .status(404)
+      .json({ message: "you didn't provide a valide id of yours" });
+  }
+  if (!secondUser) {
+    return res
+      .status(404)
+      .json({ message: "you didn't provide a valide id of your partner chat" });
+  }
+  firstUser.following.push(firstUserId);
+  secondUser.followers.push(secondUserId);
+  await firstUser.save();
+  await secondUser.save();
+  const isExist = onlineUsers.find((userId) => userId == secondUserId);
+  if (isExist) {
+    res.io.emit("follow", {
+      userId: secondUserId,
+      message: "someone followed you now refrech to see who followed you",
+    });
+  }
+  return res
+    .status(200)
+    .json({ data: null, message: "you followed him successfully" });
+};
+
+const reomveUserFollow = async (
+  req: authRequest,
+  res: ioResponse,
+  next: NextFunction
+) => {
+  const { firstUserId, secondUserId } = req.params;
+  if (!firstUserId || firstUserId != req.user.id) {
+    return res.status(403).json({ data: null, message: "only user himself" });
+  }
+  if (!secondUserId) {
+    return res.status(400).json({
+      data: null,
+      message: "something went wrong",
+    });
+  }
+
+  const firstUser = await User.findById(firstUserId);
+  const secondUser = await User.findById(secondUserId);
+  if (!firstUser) {
+    return res
+      .status(404)
+      .json({ message: "you didn't provide a valide id of yours" });
+  }
+  if (!secondUser) {
+    return res
+      .status(404)
+      .json({ message: "you didn't provide a valide id of your partner chat" });
+  }
+  firstUser.following.filter((userId) => userId != secondUserId);
+  secondUser.followers.filter((userId) => userId != firstUser);
+  await firstUser.save();
+  await secondUser.save();
+  return res.status(200).json({
+    message: "you unfollowed him successfully",
+    data: firstUser.following,
+  });
+};
+
+export {
+  getUserByIdController,
+  updateUserData,
+  subscribe,
+  reomveUserFollow,
+  followUser,
+};

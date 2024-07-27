@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { authRequest } from "../interfaces/authInterface";
-import Product from "../models/Product";
+import Post from "../models/Post";
 import Comment from "../models/Comment";
 
 const addComment = async (
@@ -8,37 +8,26 @@ const addComment = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { content, rating, userId } = req.body;
-  const { productId } = req.params;
+  const { content, userId } = req.body;
+  const { postId } = req.params;
   try {
     if (req.user.id != userId) {
       return res
         .status(403)
         .json({ data: null, message: "access denied,only user himself" });
     }
-    const product = await Product.findById(productId);
-    if (!product) {
+    const post = await Post.findById(postId);
+    if (!post) {
       return res.status(404).json({ message: "product not found", data: null });
     }
-    const isAlreadyCommented = await Comment.findOne({
-      product: productId,
-      user: userId,
-    });
-    if (isAlreadyCommented) {
-      return res
-        .status(400)
-        .json({ message: "you already reviewed this product", data: null });
-    }
+
     const comment = await Comment.create({
       content: content,
-      product: productId,
+      post: postId,
       user: userId,
-      rate: rating,
     });
 
-    const comments = await Comment.find({ product: productId }).populate(
-      "user"
-    );
+    const comments = await Comment.find({ post: postId }).populate("user");
     comments.map((comment) => {
       comment.user.password = "";
     });
@@ -52,14 +41,12 @@ const addComment = async (
 
 const getComments = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { productId } = req.params;
-    const product = await Product.findById(productId);
-    if (!product) {
+    const { postId } = req.params;
+    const post = await Post.findById(postId);
+    if (!post) {
       return res.status(404).json({ message: "product not found", data: null });
     }
-    const comments = await Comment.find({ product: productId }).populate(
-      "user"
-    );
+    const comments = await Comment.find({ post: postId }).populate("user");
     comments.map((comment) => {
       comment.user.password = "";
     });

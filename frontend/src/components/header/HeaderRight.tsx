@@ -11,11 +11,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { FaBars } from "react-icons/fa6";
-import { RiAdminFill } from "react-icons/ri";
 import { IRootState } from "../../store/store";
 import customAxios from "../../axios/customAxios";
 import { authActions } from "../../store/slices/authSlice";
 import toast from "react-hot-toast";
+import { MdOutlineLogout } from "react-icons/md";
+import { TbLogout } from "react-icons/tb";
+import { IoLogOut } from "react-icons/io5";
 
 export default function HeaderRight() {
   const dispatch = useDispatch();
@@ -37,22 +39,27 @@ export default function HeaderRight() {
         <>
           <Link
             to={`/messages`}
-            className="hidden xl:inline-block  px-2 py-1 rounded-xl"
+            className="hidden xl:inline-block  px-2 py-1 rounded-xl "
           >
-            <FaMessage />
+            <FaMessage className="hover:scale-110 duration-200" />
           </Link>
           <Link
             to={`/profile/${user?._id}`}
             className="hidden xl:inline-block  px-2 py-1 rounded-xl"
           >
-            <FaUser />
+            <FaUser className="hover:scale-110 duration-200" />
           </Link>
           <Link
             to={`/settings`}
-            className="hidden xl:inline-block  px-2 py-1 rounded-xl"
+            className="hidden xl:inline-block  px-2 py-1 rounded-xl gear-container"
           >
-            <FaGear />
+            <FaGear className="hover:scale-110 duration-200" />
           </Link>
+
+          <TbLogout
+            onClick={() => logoutHandler()}
+            className="hidden xl:inline-block  text-xl  rounded-xl cursor-pointer hover:scale-110 duration-200"
+          />
         </>
       )}
       {!user && (
@@ -109,7 +116,7 @@ export default function HeaderRight() {
                 <>
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
-                    to="/profile"
+                    to={`/profile/${user?._id}`}
                   >
                     <li>Profile</li>
                   </Link>
@@ -119,9 +126,15 @@ export default function HeaderRight() {
                   >
                     <li>Messages</li>
                   </Link>
+                  <Link
+                    className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
+                    to="/settings"
+                  >
+                    <li>Settings</li>
+                  </Link>
                   <div
                     onClick={() => logoutHandler()}
-                    className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
+                    className="px-6 py-1 cursor-pointer hover:bg-mainColor duration-300 hover:text-white"
                   >
                     <li>Logout</li>
                   </div>

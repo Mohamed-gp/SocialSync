@@ -5,7 +5,8 @@ import {
   getAllPosts,
   getSinglePost,
   savePost,
-} from "../controllers/productsController";
+  getPostPictures,
+} from "../controllers/postsController";
 import { verifyToken, verifyAdmin } from "../middlewares/verifyToken";
 import upload from "../utils/multer/multer";
 import verifyObjectId from "../middlewares/verifyObjectId";
@@ -16,6 +17,7 @@ router
   .route("/")
   .get(getAllPosts)
   .post(upload.array("images"), verifyToken, createPost);
+router.route("/:id/pictures").get(getPostPictures);
 router.route("/wishlist").post(verifyToken, savePost);
 router
   .route("/:id")

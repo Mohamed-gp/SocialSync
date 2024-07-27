@@ -53,3 +53,16 @@ body {
     scale: 1;
   }
 }
+
+.gear-container:hover > svg {
+  animation: spin 0.4s linear forwards;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

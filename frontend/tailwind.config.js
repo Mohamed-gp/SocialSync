@@ -6,7 +6,7 @@ export default {
       container: { center: true, padding: "2rem" },
       colors: {
         mainColor: "#00c2ff",
-        colorDanger: "#ff0000",
+        redColor: "#ff0000",
         // mainColor: "#00b207",
         // mainColor: "#8A33FD",
         bgColorWhite: "#ECEBEC",

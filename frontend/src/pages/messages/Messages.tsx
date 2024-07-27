@@ -106,10 +106,10 @@ const Messages = () => {
             <div className="flex flex-col px-6 gap-6">
               <div className="flex justify-center">
                 <div className="justify-center  flex flex-col items-center  gap-6">
-                  {inbox?.length != 0 ? (
+                  {inbox?.length == 0 ? (
                     <div
                       className="flex justify-center items-center w-full"
-                      style={{ height: "calc(100vh - 350px)" }}
+                      style={{ minHeight: "calc(100vh - 350px)" }}
                     >
                       <div className="flex flex-col items-center">
                         <p className="font-bold text-mainColor">
@@ -179,7 +179,7 @@ const Messages = () => {
                 </div>
               </div>
             </div>
-            {inbox?.length == 0 && (
+            {inbox?.length != 0 && (
               <div className="flex flex-col rounded-xl bg-white px-6 py-6 gap-6 flex-1 max-w-[700px] mx-4">
                 <div className="flex border-b-2 justify-between">
                   <p className="">

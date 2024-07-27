@@ -16,6 +16,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     }
     const user = await User.findOne({
       email,
+    }).populate({
+      path: "posts",
+      populate: {
+        path: "user",
+      },
     });
     if (!user) {
       return res.status(404).json({
@@ -63,6 +68,11 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     }
     let user = await User.findOne({
       email: email,
+    }).populate({
+      path: "posts",
+      populate: {
+        path: "user",
+      },
     });
 
     if (user) {
@@ -115,7 +125,12 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, photoUrl } = req.body;
   try {
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).populate({
+      path: "posts",
+      populate: {
+        path: "user",
+      },
+    });
 
     if (user) {
       const token = jwt.sign(
