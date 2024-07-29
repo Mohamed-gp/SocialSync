@@ -8,7 +8,6 @@ import cloudinary from "../utils/cloudinary/cloudinary";
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
-  console.log(req.body);
   try {
     const { error } = verifyLogin(req.body);
     if (error) {
@@ -16,12 +15,16 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     }
     const user = await User.findOne({
       email,
-    }).populate({
-      path: "posts",
-      populate: {
-        path: "user",
-      },
-    });
+    })
+      .populate("following")
+      .populate("followers")
+      .populate("rooms")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
     if (!user) {
       return res.status(404).json({
         data: null,
@@ -63,17 +66,20 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     const { username, email, password, location, occupation } = req.body;
     const { error } = verifyRegister(req.body);
     if (error) {
-      console.log(error, "this is error");
       return res.status(400).json({ message: error?.details[0].message });
     }
     let user = await User.findOne({
       email: email,
-    }).populate({
-      path: "posts",
-      populate: {
-        path: "user",
-      },
-    });
+    })
+      .populate("rooms")
+      .populate("following")
+      .populate("followers")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
 
     if (user) {
       return res.status(400).json({ message: "already user with this email" });
@@ -86,7 +92,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
         const uploadResult = await cloudinary.uploader.upload(filePath);
         imgUrl = uploadResult.url;
       } catch (error) {
-        console.log(error);
         next(error);
       }
     }
@@ -124,13 +129,18 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
 const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, photoUrl } = req.body;
+  photoUrl;
   try {
-    let user = await User.findOne({ email }).populate({
-      path: "posts",
-      populate: {
-        path: "user",
-      },
-    });
+    let user = await User.findOne({ email })
+      .populate("following")
+      .populate("followers")
+      .populate("rooms")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
 
     if (user) {
       const token = jwt.sign(
@@ -156,7 +166,7 @@ const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
         Math.random().toString(36).slice(-8);
       user = await User.create({
         email: email,
-        photoUrl,
+        profileImg: photoUrl,
         username,
         password: await bcrypt.hash(generatedPassword, 10),
         provider: "google",

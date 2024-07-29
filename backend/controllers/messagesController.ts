@@ -4,18 +4,36 @@ import Room from "../models/Room";
 import User from "../models/User";
 import { onlineUsers } from "../utils/socket/socket";
 import { ioResponse } from "../interfaces/authInterface";
+import path from "path";
 
 const getAllChats = async (
   req: authRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const { userId } = req.body;
+  const { userId } = req.params;
   if (!userId || userId != req.user.id) {
     return res.status(403).json({ data: null, message: "only user himself" });
   }
+  const { rooms } = await User.findById(userId)
+    .populate("rooms")
+    .populate({
+      path: "rooms",
+      populate: [
+        {
+          path: "firstUser",
+        },
+        {
+          path: "secondUser",
+        },
+      ],
+    })
+    .populate({
+      path: "rooms",
+      populate: { path: "messages", populate: { path: "userId" } },
+    });
+  // remove password to do
 
-  const rooms = await Room.find({ firstUser: userId });
 
   return res.status(200).json({ data: rooms, message: "fetched successfully" });
 };
@@ -25,6 +43,7 @@ const createRoom = async (
   next: NextFunction
 ) => {
   const { firstUserId, secondUserId } = req.body;
+ 
   if (!firstUserId || firstUserId != req.user.id) {
     return res.status(403).json({ data: null, message: "only user himself" });
   }
@@ -47,7 +66,7 @@ const createRoom = async (
       .json({ message: "you didn't provide a valide id of your partner chat" });
   }
 
-  let room = await Room.find({
+  let room = await Room.findOne({
     firstUser: firstUserId,
     secondUser: secondUserId,
   });
@@ -61,6 +80,7 @@ const createRoom = async (
     firstUser: firstUserId,
     secondUser: secondUserId,
   });
+
   //@ts-ignore
   firstUser.rooms.push(room._id as string);
   //@ts-ignore
@@ -78,6 +98,7 @@ const createMessage = async (
   next: NextFunction
 ) => {
   const { firstUserId, secondUserId, text } = req.body;
+
   if (!firstUserId || firstUserId != req.user.id) {
     return res.status(403).json({ data: null, message: "only user himself" });
   }
@@ -105,10 +126,18 @@ const createMessage = async (
       .json({ message: "you didn't provide a valide id of your partner chat" });
   }
 
-  const room = await Room.findOne({
+  let room = await Room.findOne({
     firstUser: firstUserId,
     secondUser: secondUserId,
   });
+  let room2 = await Room.findOne({
+    firstUser: secondUserId,
+    secondUser: firstUserId,
+  });
+
+  if (!room && room2) {
+    room = room2;
+  }
   if (!room) {
     return res.status(400).json({ message: "you must create room first" });
   }
@@ -120,8 +149,14 @@ const createMessage = async (
 
   await room.save();
   const isExist = onlineUsers.find((userId) => userId == secondUserId);
+  firstUser.password = "";
   if (isExist) {
-    res.io.emit("message", { id: secondUserId, message: text });
+    res.io.emit("message", {
+      receiverId: secondUserId,
+      senderId: firstUser,
+      message: text,
+      roomId: room?._id,
+    });
   }
   return res.status(200).json({
     message: "message created successfully",

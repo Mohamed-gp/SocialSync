@@ -19,7 +19,6 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   const posts = await Post.find().populate("user");
   const my: any = [];
   posts?.forEach((post: any) => {
-    // console.log(post.user.password);
     post.user.password = "";
   });
   return res.status(200).json({
@@ -41,7 +40,7 @@ const getSinglePost = async (
   next: NextFunction
 ) => {
   try {
-    const product = await Post.findById(req.params.id);
+    const product = await Post.findById(req.params.id).populate("user");
     if (!product) {
       return res.status(404).json({ data: null, message: "product not found" });
     }

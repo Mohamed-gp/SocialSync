@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaCartShopping,
   FaGear,
@@ -9,7 +9,7 @@ import {
   FaX,
 } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaBars } from "react-icons/fa6";
 import { IRootState } from "../../store/store";
 import customAxios from "../../axios/customAxios";
@@ -18,13 +18,16 @@ import toast from "react-hot-toast";
 import { MdOutlineLogout } from "react-icons/md";
 import { TbLogout } from "react-icons/tb";
 import { IoLogOut } from "react-icons/io5";
+import { io } from "socket.io-client";
 
 export default function HeaderRight() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const logoutHandler = async () => {
     try {
       const { data } = await customAxios.post("/auth/logout");
       dispatch(authActions.logout(null));
+      navigate("/");
       toast.success(data.message);
     } catch (error: any) {
       console.log(error);
@@ -32,6 +35,17 @@ export default function HeaderRight() {
     }
   };
   const user: any = useSelector((state: IRootState) => state.auth.user);
+  useEffect(() => {
+    if (user?._id) {
+      const socket = io("http://localhost:3000/", {
+        query: { userId: user._id },
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, []);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <div className="flex items-center justify-between gap-1 text-sm xl:text-lg ">

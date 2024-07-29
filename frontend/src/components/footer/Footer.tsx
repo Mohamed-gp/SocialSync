@@ -64,6 +64,7 @@ const Footer = () => {
             </svg>
           </a>
           <a
+            target="_blank"
             href="https://www.facebook.com/profile.php?id=100009748452803"
             className="text-gray-500 hover:text-gray-900"
           >
@@ -81,6 +82,7 @@ const Footer = () => {
             </svg>
           </a>
           <a
+            target="_blank"
             href="https://www.instagram.com/outerbahm/"
             className="text-gray-500 hover:text-gray-900"
           >
@@ -100,7 +102,7 @@ const Footer = () => {
         </div>
       </div>
       <p className="mt-4 text-center ">
-        <span className="opacity-50">All Right Reserved </span>
+        <span className="opacity-50">All Right Reserved&copy; </span>
         <span className="text-mainColor opacity-100 font-bold">
           SocialSync {new Date().getFullYear()}
         </span>

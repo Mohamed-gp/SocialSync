@@ -19,6 +19,7 @@ const socketInit = (server: object) => {
     socket.on("disconnect", () => {
       console.log("a user disconnected");
       onlineUsers = onlineUsers.filter((id) => id != userId);
+      io.emit("onlineUsers", onlineUsers);
     });
   });
 

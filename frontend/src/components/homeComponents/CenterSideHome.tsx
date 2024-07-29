@@ -12,7 +12,6 @@ const CenterSideHome = () => {
   const getAllPosts = async () => {
     try {
       const { data } = await customAxios.get("/posts");
-      console.log(data);
       setPosts(data.data);
     } catch (error) {
       console.log(error);
@@ -22,7 +21,10 @@ const CenterSideHome = () => {
     getAllPosts();
   }, []);
   return (
-    <div className="flex-1 flex flex-col gap-6">
+    <div
+      className="flex-1 flex flex-col gap-6"
+      style={posts?.length == 0 ? { height: "calc(100vh - 250px)" } : {}}
+    >
       {user && <CreatePost getAllPosts={getAllPosts} />}
       <Posts posts={posts} />
     </div>

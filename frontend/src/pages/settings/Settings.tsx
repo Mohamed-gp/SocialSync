@@ -29,7 +29,6 @@ const Settings = () => {
       formData.append("occupation", data.occupation);
       formData.append("bio", data.bio);
       const result = await customAxios.post(`/users/${user?._id}`, formData);
-      console.log("hello")
       dispatch(authActions.login(result.data.data));
       toast.success(result.data.message);
     } catch (error: any) {

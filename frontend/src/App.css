@@ -4,6 +4,8 @@
 
 body {
   background-color: #efefef;
+  /* background-color: white; */
+
   overflow-x: hidden;
 }
 * {

@@ -1,13 +1,15 @@
 import { BsShareFill } from "react-icons/bs";
-import { FaComment, FaHeart, FaShare } from "react-icons/fa6";
+import { FaComment, FaHeart, FaMessage, FaShare } from "react-icons/fa6";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { LuGrip } from "react-icons/lu";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../store/store";
 import PostPhotosModel from "../../components/models/PostPhotosModel";
 import customAxios from "../../axios/customAxios";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { authActions } from "../../store/slices/authSlice";
 
 const Post = () => {
   const user = useSelector((state: IRootState) => state.auth.user);
@@ -25,6 +27,40 @@ const Post = () => {
     getPostById();
   }, []);
   const [isPostPhotosModelOpen, setIsPostPhotosModelOpen] = useState(false);
+
+  const dispatch = useDispatch();
+  const followPersonHandler = async () => {
+    try {
+      const { data } = await customAxios.post("/users/follow", {
+        firstUserId: user?._id,
+        secondUserId: post?.user?._id,
+      });
+      console.log(data.data.following);
+      dispatch(authActions.login(data.data));
+      toast.success(data.message);
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+      console.log(error);
+    }
+  };
+  const navigate = useNavigate();
+  const createRoom = async () => {
+    try {
+      const { data } = await customAxios.post("/messages/room/create", {
+        firstUserId: user?._id,
+        secondUserId: post?.user?._id,
+      });
+      toast.success(data.message);
+      navigate("/messages");
+    } catch (error: any) {
+      console.log(error);
+      if (
+        error.response.data.message == "you already have chat with this person"
+      ) {
+        navigate("/messages");
+      }
+    }
+  };
   return (
     <>
       {post && (
@@ -44,11 +80,50 @@ const Post = () => {
                 <p className="text-sm font-bold">{post?.user?.username}</p>
                 <p className=" opacity-80">{post?.user?.occupation}</p>
               </div>
-              {post.user._id != user?._id && (
-                <MdPersonAddAlt1
-                  className={`text-xl mt-1 duration-300 cursor-pointer z-10 `}
-                />
+              {!user && (
+                <>
+                  <Link to={"/login"}>
+                    <FaMessage
+                      className={`hover:scale-105 mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor`}
+                    />
+                  </Link>
+                  <Link to={"/login"}>
+                    <MdPersonAddAlt1
+                      className={`text-xl mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor`}
+                    />
+                  </Link>
+                </>
               )}
+              {user &&
+                user?._id != post?.user?._id &&
+                !user?.following?.find((id) => id?._id == post?.user?._id) && (
+                  <>
+                    <MdPersonAddAlt1
+                      onClick={(e) => {
+                        e.preventDefault();
+                        followPersonHandler();
+                      }}
+                      className={`text-xl hover:scale-105 mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor`}
+                    />
+                    <FaMessage
+                      onClick={(e) => {
+                        e.preventDefault();
+                        createRoom();
+                      }}
+                      className={`hover:scale-105 mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor`}
+                    />
+                  </>
+                )}
+              {user?._id != post?.user?._id &&
+                user?.following?.find((id) => id?._id == post?.user?._id) && (
+                  <FaMessage
+                    onClick={(e) => {
+                      e.preventDefault();
+                      createRoom();
+                    }}
+                    className={`hover:scale-105 mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor`}
+                  />
+                )}
             </div>
             <p>{post?.description}</p>
             <div className="img flex flex-col justify-center items-center relative">

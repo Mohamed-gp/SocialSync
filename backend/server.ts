@@ -56,7 +56,6 @@ app.use(
 const io = socketInit(server);
 import { ioResponse } from "./interfaces/authInterface";
 app.use((req: Request, res: ioResponse, next: NextFunction) => {
-  // console.log(io);
 
   res.io = io;
   next();

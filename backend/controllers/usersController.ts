@@ -15,14 +15,21 @@ const getUserByIdController = async (
 ) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findById(id)
+      .populate("following")
+      .populate("followers")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
     if (!user) {
       return res
         .status(404)
         .json({ data: null, message: "no user found with this email" });
     }
     user.password = "";
-    user.cart = null;
     return res.status(200).json({
       data: user,
       message: "user found",
@@ -46,20 +53,22 @@ const updateUserData = async (
         .json({ message: error.details[0].message, data: null });
     }
     const file = req.file as Express.Multer.File;
-    let user = await User.findById(req.params.id).populate({
-      path: "posts",
-      populate: {
-        path: "user",
-      },
-    });
+    let user = await User.findById(req.params.id)
+      .populate("following")
+      .populate("followers")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
 
     if (file) {
       try {
         const picture = file.path;
         const uploadedPicture = await cloudinary.uploader.upload(picture);
-        console.log(uploadedPicture);
         const pictureUrl = uploadedPicture.url;
-        user.photoUrl = pictureUrl;
+        user.profileImg = pictureUrl;
         removeFiles();
       } catch (error) {
         next(error);
@@ -139,87 +148,218 @@ const followUser = async (
   res: ioResponse,
   next: NextFunction
 ) => {
-  const { firstUserId, secondUserId } = req.body;
-  if (!firstUserId || firstUserId != req.user.id) {
-    return res.status(403).json({ data: null, message: "only user himself" });
-  }
-  if (!secondUserId) {
-    return res.status(400).json({
-      data: null,
-      message: "something went wrong",
-    });
-  }
+  try {
+    const { firstUserId, secondUserId } = req.body;
 
-  const firstUser = await User.findById(firstUserId);
-  const secondUser = await User.findById(secondUserId);
-  if (!firstUser) {
-    return res
-      .status(404)
-      .json({ message: "you didn't provide a valide id of yours" });
-  }
-  if (!secondUser) {
-    return res
-      .status(404)
-      .json({ message: "you didn't provide a valide id of your partner chat" });
-  }
-  firstUser.following.push(firstUserId);
-  secondUser.followers.push(secondUserId);
-  await firstUser.save();
-  await secondUser.save();
-  const isExist = onlineUsers.find((userId) => userId == secondUserId);
-  if (isExist) {
-    res.io.emit("follow", {
-      userId: secondUserId,
-      message: "someone followed you now refrech to see who followed you",
+    // Validate request body
+    if (!firstUserId || firstUserId !== req.user.id) {
+      return res.status(403).json({ data: null, message: "only user himself" });
+    }
+    if (!secondUserId) {
+      return res
+        .status(400)
+        .json({ data: null, message: "something went wrong" });
+    }
+
+    // Fetch users from database
+    const firstUser = await User.findById(firstUserId).populate("following");
+
+    const secondUser = await User.findById(secondUserId).populate("following");
+
+    // Validate users
+    if (!firstUser) {
+      return res
+        .status(404)
+        .json({ message: "you didn't provide a valid id of yours" });
+    }
+    if (!secondUser) {
+      return res.status(404).json({
+        message: "you didn't provide a valid id of your partner chat",
+      });
+    }
+
+    // Check if already following
+    const alreadyFollow = firstUser?.following?.find((user: any) => {
+      return user._id == secondUserId;
     });
+    if (alreadyFollow) {
+      return res
+        .status(400)
+        .json({ message: "you already follow this guy", data: null });
+    }
+
+    // Update following and followers
+    firstUser.following.push(secondUser); // Push secondUserId to firstUser's following
+    secondUser.followers.push(firstUser); // Push firstUserId to secondUser's followers
+
+    await firstUser.save();
+    await secondUser.save();
+
+    // Emit follow event if secondUser is online
+    const isExist = onlineUsers.find((userId: any) => {
+      return userId.toString() === secondUserId.toString();
+    });
+    if (isExist) {
+      res.io.emit("follow", {
+        userId: secondUserId,
+        message: "someone followed you now refresh to see who followed you",
+      });
+    }
+    firstUser.password = "";
+    return res
+      .status(200)
+      .json({ data: firstUser, message: "you followed him successfully" });
+  } catch (error) {
+    console.error(error);
+    next(error); // Pass error to the next middleware
   }
-  return res
-    .status(200)
-    .json({ data: null, message: "you followed him successfully" });
 };
 
-const reomveUserFollow = async (
+const removeUserFollowing = async (
   req: authRequest,
   res: ioResponse,
   next: NextFunction
 ) => {
-  const { firstUserId, secondUserId } = req.params;
-  if (!firstUserId || firstUserId != req.user.id) {
-    return res.status(403).json({ data: null, message: "only user himself" });
-  }
-  if (!secondUserId) {
-    return res.status(400).json({
-      data: null,
-      message: "something went wrong",
-    });
-  }
+  try {
+    const { firstUserId, secondUserId } = req.params;
+    if (!firstUserId || firstUserId != req.user.id) {
+      return res.status(403).json({ data: null, message: "only user himself" });
+    }
+    if (!secondUserId) {
+      return res.status(400).json({
+        data: null,
+        message: "something went wrong",
+      });
+    }
 
-  const firstUser = await User.findById(firstUserId);
-  const secondUser = await User.findById(secondUserId);
-  if (!firstUser) {
-    return res
-      .status(404)
-      .json({ message: "you didn't provide a valide id of yours" });
+    let firstUser = await User.findById(firstUserId)
+      .populate("rooms")
+      .populate("following")
+      .populate("followers")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
+
+    let secondUser = await User.findById(secondUserId);
+    if (!firstUser) {
+      return res
+        .status(404)
+        .json({ message: "you didn't provide a valide id of yours" });
+    }
+    if (!secondUser) {
+      return res.status(404).json({
+        message: "you didn't provide a valide id of your partner chat",
+      });
+    }
+    firstUser.following = firstUser.following.filter(
+      (userId: any) => userId._id != secondUserId
+    );
+    secondUser.followers = secondUser.followers.filter(
+      (userId: any) => userId._id != firstUser
+    );
+    await firstUser.save();
+    await secondUser.save();
+    firstUser.password = "";
+    return res.status(200).json({
+      message: "you unfollowed him successfully",
+      data: firstUser,
+    });
+  } catch (error) {
+    next(error);
   }
-  if (!secondUser) {
-    return res
-      .status(404)
-      .json({ message: "you didn't provide a valide id of your partner chat" });
+};
+const removeUserFollower = async (
+  req: authRequest,
+  res: ioResponse,
+  next: NextFunction
+) => {
+  try {
+    const { firstUserId, secondUserId } = req.params;
+    if (!firstUserId || firstUserId != req.user.id) {
+      return res.status(403).json({ data: null, message: "only user himself" });
+    }
+    if (!secondUserId) {
+      return res.status(400).json({
+        data: null,
+        message: "something went wrong",
+      });
+    }
+
+    let firstUser = await User.findById(firstUserId)
+      .populate("rooms")
+      .populate("following")
+      .populate("followers")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "user",
+        },
+      });
+
+    let secondUser = await User.findById(secondUserId);
+    if (!firstUser) {
+      return res
+        .status(404)
+        .json({ message: "you didn't provide a valide id of yours" });
+    }
+    if (!secondUser) {
+      return res.status(404).json({
+        message: "you didn't provide a valide id of your partner chat",
+      });
+    }
+    firstUser.followers = firstUser.followers.filter(
+      (userId: any) => userId._id != secondUserId
+    );
+    secondUser.following = secondUser.following.filter(
+      (userId: any) => userId._id != firstUser
+    );
+    await firstUser.save();
+    await secondUser.save();
+    firstUser.password = "";
+    return res.status(200).json({
+      message: "you unfollowed him successfully",
+      data: firstUser,
+    });
+  } catch (error) {
+    next(error);
   }
-  firstUser.following.filter((userId) => userId != secondUserId);
-  secondUser.followers.filter((userId) => userId != firstUser);
-  await firstUser.save();
-  await secondUser.save();
-  return res.status(200).json({
-    message: "you unfollowed him successfully",
-    data: firstUser.following,
-  });
 };
 
+const searchUser = async (
+  req: authRequest,
+  res: ioResponse,
+  next: NextFunction
+) => {
+  try {
+    const { search } = req.query;
+    if (!search && search != "") {
+      return res
+        .status(404)
+        .json({ message: "you must enter the information of users" });
+    }
+    const users = await User.find({
+      username: { $regex: search, $options: "i" },
+    });
+    users.forEach((user) => {
+      user.password = "";
+    });
+    return res.status(200).json({
+      message: "fetched Successfully",
+      data: users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export {
   getUserByIdController,
   updateUserData,
   subscribe,
-  reomveUserFollow,
+  removeUserFollowing,
   followUser,
+  searchUser,
+  removeUserFollower,
 };

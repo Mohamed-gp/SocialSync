@@ -110,7 +110,6 @@ const CreatePost = ({ getAllPosts }: any) => {
             <FaX
               onClick={() => {
                 const files = Array.from(createPostData.images);
-                console.log(files);
                 const newCreatePostData = files?.filter(
                   (file) => file != image
                 );

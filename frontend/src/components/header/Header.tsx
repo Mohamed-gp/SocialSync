@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <header className={`bg-white sticky z-[20] left-0 top-0`}  style={{boxShadow: "rgba(0, 0, 0, 0.36) 4px -4px 70px 4px"}}>
       <div className="container  flex items-center justify-between gap-2 py-4">
-        <HeaderLeft /> 
+        {/* <HeaderLeft />  */}
         <HeaderCenter />
         <HeaderRight />
       </div>

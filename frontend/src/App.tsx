@@ -14,6 +14,7 @@ import Messages from "./pages/messages/Messages";
 import Settings from "./pages/settings/Settings";
 import PostPage from "./pages/Post/Post";
 import NotFound from "./pages/notFound/NotFound";
+import Users from "./pages/users/Users";
 
 function App() {
   const user = useSelector((state: IRootState) => state.auth.user);
@@ -33,6 +34,7 @@ function App() {
         />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/users" element={<Users />} />
         <Route path="/posts/:id" element={<PostPage />} />
         <Route
           path="/messages"

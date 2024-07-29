@@ -22,7 +22,6 @@ const Login = () => {
   const loginHandler = async () => {
     try {
       setData({ ...data, loading: true });
-      console.log(data);
       const result = await customAxios.post("/auth/login", {
         email: data.email,
         password: data.password,
