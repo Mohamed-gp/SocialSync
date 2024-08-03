@@ -28,7 +28,7 @@ app.use(
     origin:
       process.env.ENV == "developement"
         ? "http://localhost:5173"
-        : "https://swiftbuy1.onrender.com",
+        : "https://social-sync1.netlify.app",
     // origin: "http://localhost:5173",
     credentials: true,
   })
@@ -56,7 +56,6 @@ app.use(
 const io = socketInit(server);
 import { ioResponse } from "./interfaces/authInterface";
 app.use((req: Request, res: ioResponse, next: NextFunction) => {
-
   res.io = io;
   next();
 });
