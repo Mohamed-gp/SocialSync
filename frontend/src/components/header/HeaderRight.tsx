@@ -36,8 +36,14 @@ export default function HeaderRight() {
   };
   const user: any = useSelector((state: IRootState) => state.auth.user);
   useEffect(() => {
+    const Env = "production";
+    const url =
+      Env == "production"
+        ? "https://socialsync-qw94.onrender.com/"
+        : "http://localhost:3000/";
+
     if (user?._id) {
-      const socket = io("http://localhost:3000/", {
+      const socket = io(url, {
         query: { userId: user._id },
       });
 
