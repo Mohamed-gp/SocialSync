@@ -45,6 +45,7 @@ const updateUserData = async (
   next: NextFunction
 ) => {
   const { username, location, occupation, bio } = req.body;
+  console.log(occupation);
   try {
     const { error } = verifyUpdateUser(req.body);
     if (error) {
@@ -82,6 +83,9 @@ const updateUserData = async (
     }
     if (bio != "") {
       user.bio = bio;
+    }
+    if (occupation != "") {
+      user.occupation = occupation;
     }
 
     await user.save();

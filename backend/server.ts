@@ -15,6 +15,7 @@ import { socketInit } from "./utils/socket/socket";
 import hpp from "hpp";
 import { createServer } from "http";
 import rateLimiting from "express-rate-limit";
+import { ioResponse } from "./interfaces/authInterface";
 
 dotenv.config();
 connectToDB();
@@ -26,10 +27,9 @@ app.use(cookieParser());
 app.use(
   cors({
     origin:
-      process.env.ENV == "developement"
-        ? "http://localhost:5173"
-        : "https://social-sync1.netlify.app",
-    // origin: "http://localhost:5173",
+      process.env.ENV == "development"
+        ? "http://localhost:5002"
+        : "https://socialsync.production-server.tech",
     credentials: true,
   })
 );
@@ -50,11 +50,10 @@ app.use(helmet());
 app.use(
   rateLimiting({
     windowMs: 10 * 60 * 1000,
-    max: 200,
+    max: 500,
   })
 );
 const io = socketInit(server);
-import { ioResponse } from "./interfaces/authInterface";
 app.use((req: Request, res: ioResponse, next: NextFunction) => {
   res.io = io;
   next();
@@ -62,7 +61,7 @@ app.use((req: Request, res: ioResponse, next: NextFunction) => {
 
 app.use(helmet());
 app.use(express.urlencoded({ extended: false }));
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 server.listen(PORT, () => {
   console.log(`am listening on port ${PORT}`);
 });

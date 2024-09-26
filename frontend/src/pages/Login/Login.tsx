@@ -39,11 +39,11 @@ const Login = () => {
 
   return (
     <div
-      className="container rounded-2xl bg-white flex flex-col my-6 py-6 px-6 gap-3"
+      className="container rounded-2xl bg-white dark:text-white dark:bg-darkThemeBG flex flex-col my-6 py-6 px-6 gap-3"
       style={{ height: "calc(100vh - 160px)" }}
     >
       <p className="text-mainColor font-bold text-center text-2xl">Login</p>
-      <p className="text-center">
+      <p className="text-center text-lg">
         Welcome back to SocialSync, The social Media for SocioPaths!
       </p>
       <RegisterInput data={data} name={"email"} setData={setData} />

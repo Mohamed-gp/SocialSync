@@ -31,16 +31,16 @@ const Settings = () => {
       const result = await customAxios.post(`/users/${user?._id}`, formData);
       dispatch(authActions.login(result.data.data));
       toast.success(result.data.message);
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     } finally {
       setData({
-        username: "",
-        location: "",
-        occupation: "",
-        bio: "",
-        image: null,
+        username: user.username,
+        location: user.location,
+        occupation: user.occupation,
+        bio: user.bio,
+        image: null, // must be user new  image
         loading: false,
       });
     }
@@ -53,7 +53,7 @@ const Settings = () => {
       dispatch(authActions.logout(null));
       toast.success(data.message);
       navigate("/");
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     }
@@ -64,7 +64,7 @@ const Settings = () => {
         className="container py-16"
         style={{ minHeight: "calc(100vh - 70.94px)" }}
       >
-        <div className="my-10 rounded-xl border-2 border-mainColor p-3">
+        <div className="my-10 rounded-xl border-2 border-mainColor p-3 dark:bg-darkThemeBG dark:text-white">
           <p className="border-b-2 pb-1 font-bold">Account Settings</p>
           <div className="flex flex-col-reverse items-center justify-between gap-x-32 px-4 py-6 sm:flex-row">
             <div className="flex w-full flex-col gap-3">
@@ -85,7 +85,7 @@ const Settings = () => {
               <div className="flex flex-col gap-1">
                 <label htmlFor="location">location: </label>
                 <input
-                  className="w-full rounded-xl border-2 py-2 pl-3 pr-3 focus:outline-none"
+                  className="w-full rounded-xl dark:text-black border-2 py-2 pl-3 pr-3 focus:outline-none"
                   id="location"
                   type="text"
                   onChange={(e) =>
@@ -99,7 +99,7 @@ const Settings = () => {
               <div className="flex flex-col gap-1">
                 <label htmlFor="location">Occupation: </label>
                 <input
-                  className="w-full rounded-xl border-2 py-2 pl-3 pr-3 focus:outline-none"
+                  className="w-full rounded-xl dark:text-black border-2 py-2 pl-3 pr-3 focus:outline-none"
                   id="location"
                   type="text"
                   onChange={(e) =>
@@ -112,7 +112,7 @@ const Settings = () => {
               <div className="flex flex-col gap-1">
                 <label htmlFor="location">Bio: </label>
                 <textarea
-                  className="w-full rounded-xl border-2 py-2 pl-3 pr-3 focus:outline-none"
+                  className="w-full rounded-xl dark:text-black border-2 py-2 pl-3 pr-3 focus:outline-none"
                   id="location"
                   onChange={(e) => setData({ ...data, bio: e.target.value })}
                   value={data?.bio}

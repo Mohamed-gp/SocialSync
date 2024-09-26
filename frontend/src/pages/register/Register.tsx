@@ -50,7 +50,7 @@ const Register = () => {
     }
   };
   return (
-    <div className="container rounded-2xl bg-white flex flex-col my-6 py-6 px-6 gap-3">
+    <div className="container rounded-2xl dark:bg-darkThemeBG dark:text-white bg-white flex flex-col my-6 py-6 px-6 gap-3">
       <p className="text-mainColor font-bold text-center text-2xl">REGISTER</p>
       <p className="text-center">
         Welcome to SocialSync,The social Media for SocioPaths!
@@ -65,7 +65,11 @@ const Register = () => {
       <RegisterInput data={data} name={"occupation"} setData={setData} />
       <RegisterInput data={data} name={"email"} setData={setData} />
       <RegisterInput data={data} name={"password"} setData={setData} />
-      <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+      <Dropzone
+        onDrop={(acceptedFiles) =>
+          setData({ ...data, image: acceptedFiles[0] })
+        }
+      >
         {({ getRootProps, getInputProps }) => (
           <section>
             <div {...getRootProps()}>

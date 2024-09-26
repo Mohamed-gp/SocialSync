@@ -37,7 +37,7 @@ const RightSideHome = () => {
   return (
     <>
       {user && (
-        <div className="flex-col h-fit min-w-[350px] xl:flex hidden   rounded-xl bg-white px-6 py-6 gap-6 ">
+        <div className="flex-col h-fit min-w-[350px] xl:flex hidden   rounded-xl bg-white dark:bg-darkThemeBG dark:text-white px-6 py-6 gap-6 ">
           <div className="flex justify-between text-center">
             <p
               onClick={() => setTypeOfRelation("followers")}
@@ -59,7 +59,7 @@ const RightSideHome = () => {
           <div className="flex flex-col max-h-[200px] pr-6 overflow-y-auto">
             {typeOfRelation == "followers" && (
               <>
-                {user?.followers.length == 0 ? (
+                {user?.followers?.length == 0 ? (
                   <p className="text-center">you have no followers</p>
                 ) : (
                   <>

@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
-import CreatePost from "../../createPost/CreatePost";
-import Dropzone from "react-dropzone";
+import CreatePost from "../createPost/CreatePost";
 import { IRootState } from "../../store/store";
 import Posts from "../posts/Posts";
 import { useEffect, useState } from "react";

@@ -1,11 +1,10 @@
 import axios from "axios";
 
-const ENV: string = "developement";
 const customAxios = axios.create({
   baseURL:
-    ENV == "production"
-      ? "https://socialsync-qw94.onrender.com/api/"
-      : "http://localhost:3000/api/",
+    import.meta.env.VITE_ENV == "development"
+      ? "http://localhost:3002/api"
+      : "https://swiftbuy1.production-server.tech/api",
   withCredentials: true,
 });
 

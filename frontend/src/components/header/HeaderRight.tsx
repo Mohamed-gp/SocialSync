@@ -1,13 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import {
-  FaCartShopping,
-  FaGear,
-  FaHeart,
-  FaMessage,
-  FaPerson,
-  FaUser,
-  FaX,
-} from "react-icons/fa6";
+import { FaGear, FaMessage, FaUser, FaX } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { FaBars } from "react-icons/fa6";
@@ -15,9 +7,7 @@ import { IRootState } from "../../store/store";
 import customAxios from "../../axios/customAxios";
 import { authActions } from "../../store/slices/authSlice";
 import toast from "react-hot-toast";
-import { MdOutlineLogout } from "react-icons/md";
 import { TbLogout } from "react-icons/tb";
-import { IoLogOut } from "react-icons/io5";
 import { io } from "socket.io-client";
 
 export default function HeaderRight() {
@@ -29,23 +19,23 @@ export default function HeaderRight() {
       dispatch(authActions.logout(null));
       navigate("/");
       toast.success(data.message);
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     }
   };
-  const user: any = useSelector((state: IRootState) => state.auth.user);
-  useEffect(() => {
-    const Env = "production";
-    const url =
-      Env == "production"
-        ? "https://socialsync-qw94.onrender.com/"
-        : "http://localhost:3000/";
 
+  const { user } = useSelector((state: IRootState) => state.auth);
+  useEffect(() => {
     if (user?._id) {
-      const socket = io(url, {
-        query: { userId: user._id },
-      });
+      const socket = io(
+        import.meta.env.VITE_ENV == "development"
+          ? "http://localhost:3002"
+          : "https://socialsync1.production-server.tech",
+        {
+          auth: { userId: user._id },
+        }
+      );
 
       return () => {
         socket.disconnect();
@@ -54,31 +44,31 @@ export default function HeaderRight() {
   }, []);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
-    <div className="flex items-center justify-between gap-1 text-sm xl:text-lg ">
+    <div className="flex items-center justify-between gap-2 text-sm xl:text-lg ">
       {user && (
         <>
           <Link
             to={`/messages`}
-            className="hidden xl:inline-block  px-2 py-1 rounded-xl "
+            className="hidden xl:inline-block dark:text-white  px-2 py-1 rounded-xl "
           >
             <FaMessage className="hover:scale-110 duration-200" />
           </Link>
           <Link
             to={`/profile/${user?._id}`}
-            className="hidden xl:inline-block  px-2 py-1 rounded-xl"
+            className="hidden xl:inline-block dark:text-white  px-2 py-1 rounded-xl"
           >
             <FaUser className="hover:scale-110 duration-200" />
           </Link>
           <Link
             to={`/settings`}
-            className="hidden xl:inline-block  px-2 py-1 rounded-xl gear-container"
+            className="hidden xl:inline-block dark:text-white px-2 py-1 rounded-xl gear-container"
           >
             <FaGear className="hover:scale-110 duration-200" />
           </Link>
 
           <TbLogout
             onClick={() => logoutHandler()}
-            className="hidden xl:inline-block  text-xl  rounded-xl cursor-pointer hover:scale-110 duration-200"
+            className="hidden xl:inline-block  text-xl dark:text-white  rounded-xl cursor-pointer hover:scale-110 duration-200"
           />
         </>
       )}
@@ -86,13 +76,13 @@ export default function HeaderRight() {
         <>
           <Link
             to={`/login`}
-            className="hidden xl:inline-block bg-mainColor text-white px-6 py-1 rounded-xl"
+            className="hidden  duration-300 xl:inline-block hover:scale-105 bg-mainColor dark:bg-mainColor text-white px-6 py-1 rounded-xl"
           >
             Login
           </Link>
           <Link
             to={`/register`}
-            className="hidden xl:inline-block bg-mainColor text-white px-6 py-1 rounded-xl"
+            className="hidden xl:inline-block hover:scale-105 bg-mainColor dark:bg-mainColor duration-300 text-white px-6 py-1 rounded-xl"
           >
             Register
           </Link>
@@ -102,12 +92,12 @@ export default function HeaderRight() {
         {isMenuOpen ? (
           <FaX
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="menu-bar cursor-pointer"
+            className="menu-bar cursor-pointer dark:text-white  relative z-50"
           />
         ) : (
           <FaBars
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="menu-x cursor-pointer"
+            className="menu-x cursor-pointer dark:text-white relative z-50"
           />
         )}
         {isMenuOpen && (
@@ -121,12 +111,14 @@ export default function HeaderRight() {
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to="/login"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <li>Login</li>
                   </Link>
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to="/register"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <li>Register</li>
                   </Link>
@@ -137,23 +129,29 @@ export default function HeaderRight() {
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to={`/profile/${user?._id}`}
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <li>Profile</li>
                   </Link>
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to="/messages"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <li>Messages</li>
                   </Link>
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to="/settings"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <li>Settings</li>
                   </Link>
                   <div
-                    onClick={() => logoutHandler()}
+                    onClick={() => {
+                      logoutHandler();
+                      setIsMenuOpen(false); 
+                    }}
                     className="px-6 py-1 cursor-pointer hover:bg-mainColor duration-300 hover:text-white"
                   >
                     <li>Logout</li>

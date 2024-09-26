@@ -11,9 +11,14 @@ const Home = () => {
   const user = useSelector((state: IRootState) => state.auth.user);
   useEffect(() => {
     if (user?._id) {
-      const socket = io("http://localhost:3000/", {
-        query: { userId: user?._id },
-      });
+      const socket = io(
+        import.meta.env.VITE_ENV == "development"
+          ? "http://localhost:3002"
+          : "https://socialsync1.production-server.tech",
+        {
+          auth: { userId: user?._id },
+        }
+      );
 
       socket.on("follow", (msg) => {
         if (msg?.userId == user?._id) {
@@ -28,16 +33,14 @@ const Home = () => {
     }
   }, []);
   return (
-    <>
-      <div className="container flex justify-center  flex-wrap mt-12 gap-6 ">
-        {/* left side */}
-        {user && <LeftSideHome />}
-        {/* center side */}
-        <CenterSideHome />
-        {/* right side */}
-        {user && <RightSideHome />}
-      </div>
-    </>
+    <div className="container  flex justify-center   flex-wrap mt-12 gap-6 ">
+      {/* left side */}
+      {user && <LeftSideHome />}
+      {/* center side */}
+      <CenterSideHome />
+      {/* right side */}
+      {user && <RightSideHome />}
+    </div>
   );
 };
 export default Home;

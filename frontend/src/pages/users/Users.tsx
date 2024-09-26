@@ -40,7 +40,7 @@ const Users = () => {
       });
       toast.success(data.message);
       navigate("/messages");
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       if (
         error.response.data.message == "you already have chat with this person"
@@ -57,7 +57,7 @@ const Users = () => {
       });
       dispatch(authActions.login(data.data));
       toast.success(data.message);
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.response.data.message);
       console.log(error);
     }
@@ -65,7 +65,7 @@ const Users = () => {
   return (
     <div className="container pt-6 mt-6 ">
       <div className="flex justify-between items-center">
-        <p className="pl-3 border-l-mainColor border-l-4 font-bold text-2xl">
+        <p className="pl-3 border-l-mainColor dark:text-white border-l-4 font-bold text-2xl">
           Profiles
         </p>
       </div>
@@ -75,7 +75,7 @@ const Users = () => {
             className="flex gap-8 flex-wrap justify-center"
             style={{ minHeight: `calc(100vh - 150.94px)` }}
           >
-            <div className="container flex flex-col  items-center justify-center py-14">
+            <div className="container flex flex-col dark:text-white items-center justify-center py-14">
               <p className="mb-2 text-3xl font-bold text-center">
                 There Is No User Match Your Search :(
               </p>
@@ -99,20 +99,22 @@ const Users = () => {
                   <p className="text-sm font-bold">{user?.username}</p>
                   <p className=" opacity-80">{user?.occupation}</p>
                 </div>
-                {user._id != user?._id && (
-                  <MdPersonAddAlt1
-                    className={`text-xl mt-1  duration-300 cursor-pointer z-10 `}
-                  />
-                )}
-                {user?._id == userFromStore?._id && "(this is you)"}
                 {!userFromStore && (
-                  <Link to={"/login"}>
-                    <MdPersonAddAlt1
-                      className={`text-xl mt-1 duration-300 cursor-pointer z-10 `}
-                    />
-                  </Link>
+                  <>
+                    <Link to={"/register"}>
+                      <FaMessage
+                        className={`hover:scale-105 mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor dark:hover:text-white`}
+                      />
+                    </Link>
+                    <Link to={"/register"}>
+                      <MdPersonAddAlt1
+                        className={`text-xl mt-1 duration-300 cursor-pointer z-10 hover:text-mainColor dark:hover:text-white`}
+                      />
+                    </Link>
+                  </>
                 )}
-                {userFromStore?._id != user._id &&
+                {userFromStore &&
+                  userFromStore?._id != user._id &&
                   !userFromStore?.following?.find(
                     (id) => id._id == user._id
                   ) && (

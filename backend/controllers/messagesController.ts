@@ -34,7 +34,6 @@ const getAllChats = async (
     });
   // remove password to do
 
-
   return res.status(200).json({ data: rooms, message: "fetched successfully" });
 };
 const createRoom = async (
@@ -43,7 +42,7 @@ const createRoom = async (
   next: NextFunction
 ) => {
   const { firstUserId, secondUserId } = req.body;
- 
+
   if (!firstUserId || firstUserId != req.user.id) {
     return res.status(403).json({ data: null, message: "only user himself" });
   }
@@ -141,7 +140,7 @@ const createMessage = async (
   if (!room) {
     return res.status(400).json({ message: "you must create room first" });
   }
-  //@ts-ignore
+  // @ts-ignore
   room.messages.push({
     userId: firstUserId,
     message: text,
@@ -150,14 +149,15 @@ const createMessage = async (
   await room.save();
   const isExist = onlineUsers.find((userId) => userId == secondUserId);
   firstUser.password = "";
-  if (isExist) {
-    res.io.emit("message", {
-      receiverId: secondUserId,
-      senderId: firstUser,
-      message: text,
-      roomId: room?._id,
-    });
-  }
+  
+  res.io.emit("message", {
+    receiverId: secondUserId,
+    senderId: firstUser,
+    message: text,
+    roomId: room?._id,
+  });
+
+  console.log("am here")
   return res.status(200).json({
     message: "message created successfully",
     data: null,

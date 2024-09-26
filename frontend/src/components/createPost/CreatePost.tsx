@@ -1,17 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { FaX } from "react-icons/fa6";
-import customAxios from "../axios/customAxios";
+import customAxios from "../../axios/customAxios";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../store/store";
-import { authActions } from "../store/slices/authSlice";
+import { useSelector } from "react-redux";
+import { IRootState } from "../../store/store";
 
-interface CreatePostProps {
-  getAllPosts: any;
-}
-const CreatePost = ({ getAllPosts }: any) => {
-  const dispatch = useDispatch();
+const CreatePost = () => {
   const user = useSelector((state: IRootState) => state.auth.user);
   const [createPostData, setCreatePostData] = useState({
     images: [],
@@ -31,11 +26,10 @@ const CreatePost = ({ getAllPosts }: any) => {
     try {
       const { data } = await customAxios.post("/posts", formData);
       toast.success(data.message);
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     } finally {
-      getAllPosts();
       setCreatePostData({
         images: [],
         description: "",
@@ -44,7 +38,7 @@ const CreatePost = ({ getAllPosts }: any) => {
     }
   };
   return (
-    <div className="flex flex-col rounded-xl bg-white px-6 py-4 gap-6 ">
+    <div className="flex flex-col rounded-xl bg-white dark:bg-darkThemeBG px-6 py-4 gap-6 ">
       <div className="flex gap-2 border-b-2 pb-4 items-center">
         <img
           src={user?.profileImg}
@@ -79,7 +73,7 @@ const CreatePost = ({ getAllPosts }: any) => {
                     }
                   }}
                 />
-                <p className="text-center px-2 cursor-pointer   border-mainColor border-2 py-4 rounded-xl border-dashed">
+                <p className="text-center px-2 cursor-pointer   border-mainColor dark:text-white border-2 py-4 rounded-xl border-dashed">
                   Drag 'n' drop your post Images here
                 </p>
               </div>

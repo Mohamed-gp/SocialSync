@@ -1,11 +1,5 @@
 import { BsPersonFillGear } from "react-icons/bs";
-import {
-  FaBriefcase,
-  FaLinkedin,
-  FaLocationDot,
-  FaPencil,
-  FaSquareXTwitter,
-} from "react-icons/fa6";
+import { FaBriefcase, FaLocationDot } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import { IRootState } from "../../store/store";
 import { Link } from "react-router-dom";
@@ -13,7 +7,7 @@ import { Link } from "react-router-dom";
 const LeftSideHome = () => {
   const user = useSelector((state: IRootState) => state.auth.user);
   return (
-    <div className="xl:flex hidden h-fit min-w-[350px] flex-col rounded-xl bg-white px-6 py-6 gap-6 ">
+    <div className="xl:flex hidden h-fit min-w-[350px] flex-col rounded-xl bg-white dark:bg-darkThemeBG dark:text-white px-6 py-6 gap-6 ">
       <div className="flex gap-2 items-center relative">
         <img
           src={user?.profileImg}

@@ -37,8 +37,11 @@ const PostPhotosModel = ({
           onClick={() => setIsPostPhotosModelOpen(false)}
         >
           <div
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
             style={{ boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px" }}
-            className="w-[50vw] p-6  left-[25vw] flex flex-col top-[15vh] z-20 h-[70vh] overflow-auto rounded-2xl container fixed  bg-white  mt-6  "
+            className="sm:w-[80vw] p-6  sm:left-[10vw] flex flex-col  left-0  top-[15vh] w-screen h-[70vh] overflow-auto rounded-2xl container fixed  bg-white dark:bg-darkThemeBGLight  mt-6  "
           >
             <FaX
               onClick={() => setIsPostPhotosModelOpen(false)}

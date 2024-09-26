@@ -1,15 +1,15 @@
-import { BsCameraFill, BsPersonFill, BsPersonFillGear } from "react-icons/bs";
+import { BsPersonFillGear } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../store/store";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaBriefcase, FaLocationDot, FaMessage, FaX } from "react-icons/fa6";
-import CenterSideHome from "../../components/homeComponents/CenterSideHome";
-import CreatePost from "../../createPost/CreatePost";
+import CreatePost from "../../components/createPost/CreatePost";
 import Post from "../../components/post/Post";
 import toast from "react-hot-toast";
 import customAxios from "../../axios/customAxios";
 import { authActions } from "../../store/slices/authSlice";
+import { MdPersonAddAlt1 } from "react-icons/md";
 
 const Profile = () => {
   const { id } = useParams();
@@ -41,7 +41,7 @@ const Profile = () => {
       });
       toast.success(data.message);
       navigate("/messages");
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       if (
         error.response.data.message == "you already have chat with this person"
@@ -59,7 +59,7 @@ const Profile = () => {
       toast.success(data.message);
       dispatch(authActions.login(data.data));
       getProfileById();
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     }
@@ -72,7 +72,7 @@ const Profile = () => {
       toast.success(data.message);
       dispatch(authActions.login(data.data));
       getProfileById();
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     }
@@ -80,8 +80,8 @@ const Profile = () => {
   return (
     <>
       {user ? (
-        <div className="container p-6">
-          <div className="flex h-fit  flex-col rounded-xl bg-white px-6 py-6 gap-6 mb-6 ">
+        <div className="container p-6" style={{minHeight : "calc(100vh - 80.5px - 126px)"}}>
+          <div className="flex h-fit dark:bg-darkThemeBG dark:text-white  flex-col rounded-xl bg-white px-6 py-6 gap-6 mb-6 ">
             <div className="flex flex-col justify-center  text-center gap-2 items-center relative">
               <div className="border-mainColor border-2 rounded-full">
                 <img
@@ -92,7 +92,7 @@ const Profile = () => {
               </div>
               <div className="flex flex-col flex-1">
                 <p className="text-sm font-bold">{user?.username}</p>
-                <p className=" opacity-80 text-sm">
+                <p className=" opacity-80 text-sm ">
                   {user?.posts?.length} Posts
                 </p>
               </div>
@@ -105,7 +105,9 @@ const Profile = () => {
                   <p>
                     {user?.location
                       ? user?.location
-                      : "you didn't put your location"}
+                      : userFromStore?._id == user?._id
+                      ? "you didn't put your location"
+                      : "he didn't put his occupation"}
                   </p>
                 </div>
                 <div className="flex gap-4 items-center">
@@ -113,7 +115,9 @@ const Profile = () => {
                   <p>
                     {user?.occupation
                       ? user?.occupation
-                      : "you didn't put your occupation"}
+                      : userFromStore?._id == user?._id
+                      ? "you didn't put your occupation"
+                      : "he didn't put his occupation"}
                   </p>
                 </div>
               </div>
@@ -124,22 +128,25 @@ const Profile = () => {
                   />
                 </Link>
               )}
-              {user && user?._id != userFromStore?._id && (
+              {/* {user && user?._id != userFromStore?._id && (
                 <FaMessage
                   onClick={() => createRoom()}
                   className={`text-sm mt-1 duration-300 cursor-pointer z-10 `}
                 />
-              )}
-              {!user && (
-                <Link to="/login">
-                  <BsPersonFillGear
+              )} */}
+              {!userFromStore && (
+                <Link to="/register" className="flex gap-2">
+                  <FaMessage
+                    className={`text-sm mt-1 duration-300 cursor-pointer z-10 `}
+                  />
+                  <MdPersonAddAlt1
                     className={`text-sm mt-1 duration-300 cursor-pointer z-10 `}
                   />
                 </Link>
               )}
             </div>
 
-            <div className="flex-col h-fit min-w-[350px] xl:flex hidden   rounded-xl bg-white px-6 py-6 gap-6 ">
+            <div className="flex-col h-fit min-w-[350px] xl:flex hidden   rounded-xl bg-white dark:bg-darkThemeBG px-6 py-6 gap-6 ">
               <div className="flex justify-between text-center">
                 <p
                   onClick={() => setTypeOfRelation("followers")}
@@ -165,8 +172,12 @@ const Profile = () => {
               <div className="flex flex-col max-h-[200px] pr-6 overflow-y-auto">
                 {typeOfRelation == "followers" && (
                   <>
-                    {user?.followers.length == 0 ? (
+                    {user?.followers?.length == 0 &&
+                    userFromStore?._id == user._id ? (
                       <p className="text-center">you have no followers</p>
+                    ) : user?.followers?.length == 0 &&
+                      userFromStore?._id != user._id ? (
+                      <p className="text-center">this user have no followers</p>
                     ) : (
                       <>
                         {user?.followers?.map((user) => (
@@ -196,8 +207,14 @@ const Profile = () => {
                 )}
                 {typeOfRelation == "following" && (
                   <>
-                    {user?.following.length == 0 ? (
+                    {userFromStore?._id == user?._id &&
+                    user?.following?.length == 0 ? (
                       <p className="text-center">you don't follow any person</p>
+                    ) : userFromStore?._id != user?._id &&
+                      user?.following?.length == 0 ? (
+                      <p className="text-center">
+                        this user don't follow any person
+                      </p>
                     ) : (
                       <>
                         {user?.following?.map((user) => (
@@ -230,9 +247,9 @@ const Profile = () => {
           </div>
           {user._id == userFromStore?._id && <CreatePost />}
           <div className="flex justify-between items-center">
-            <p className="py-6 my-3 text-xl font-bold ">Posts</p>
+            <p className="py-6 my-3 text-xl font-bold dark:text-white">Posts</p>
             {/* profile post */}
-            <p>{user?.posts?.length}</p>
+            <p className="dark:text-white">{user?.posts?.length}</p>
           </div>
           {user?.posts?.length >= 1 ? (
             // <Posts posts={user?.posts} />
@@ -242,7 +259,9 @@ const Profile = () => {
               ))}
             </>
           ) : (
-            <p className="my-6 text-center font-bold">There is Posts Found</p>
+            <p className="my-6 text-center font-bold dark:text-white">
+              There Is No Posts Found
+            </p>
           )}
         </div>
       ) : (

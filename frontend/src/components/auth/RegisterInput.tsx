@@ -24,11 +24,11 @@ const RegisterInput = ({ name, data, setData }: RegisterInputProps) => {
         }
         name={name}
         id={name}
-        className="peer w-full pt-5 pb-2 px-3 border-2 text-xs  focus:outline-none rounded-md "
+        className="peer w-full pt-5 pb-2 px-3 border-2 text-xs dark:text-black  focus:outline-none rounded-md "
       />
       <label
         htmlFor={name}
-        className={`absolute ${
+        className={`absolute dark:text-black ${
           !data[name] ? "text-[13px] top-3" : "text-[10px] top-1 "
         }  peer-focus:text-[10px] peer-focus:top-1 duration-500 left-3  opacity-50`}
       >

@@ -12,7 +12,7 @@ import AboutUs from "./pages/aboutus/AboutUs";
 import Profile from "./pages/profile/Profile";
 import Messages from "./pages/messages/Messages";
 import Settings from "./pages/settings/Settings";
-import PostPage from "./pages/Post/Post";
+import PostPage from "./pages/PostPage/PostPage";
 import NotFound from "./pages/notFound/NotFound";
 import Users from "./pages/users/Users";
 

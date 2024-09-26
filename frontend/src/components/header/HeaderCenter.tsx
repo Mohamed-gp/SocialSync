@@ -12,7 +12,7 @@ export default function HeaderCenter() {
     try {
       navigate(`/users?search=${search.split(" ").join("+")}`);
       setSearch("");
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     }
@@ -33,25 +33,31 @@ export default function HeaderCenter() {
   }, [search, location]);
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 dark:bg">
       <Link
         to="/"
-        className="text-base  text-mainColor sm:text-xl font-bold sm:flex  hidden   items-center gap-1"
+        className="text-base   sm:text-xl font-bold sm:flex  hidden   items-center gap-1"
       >
-        <div className="flex items-center justify-center text-white bg-mainColor p-[6px]  rounded-xl text-lg">
+        <div className="flex items-center justify-center text-white bg-mainColor p-[6px] dark:bg-mainColor rounded-xl text-lg">
           <BiSolidMessageAlt />
         </div>
       </Link>
       <div className="flex items-center rounded-2xl border-2 border-solid border-[#dddddd] text-base md:text-lg">
-        <div className="flex items-center justify-center rounded-l-xl p-2">
+        <div className="flex items-center h-full justify-center rounded-l-xl p-2 bg-white">
           <FaMagnifyingGlass />
         </div>
-        <div className="relative">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            searchHandler();
+          }}
+          className="relative h-full"
+        >
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-[50px] pl-1 relative placeholder:text-[0px] focus:outline-none sm:w-[200px] sm:placeholder:text-sm md:w-[300px]"
+            className="w-[50px] pl-1 relative h-full placeholder:text-[0px] focus:outline-none sm:w-[200px] sm:placeholder:text-sm md:w-[300px]"
             placeholder="Search for People"
           />
           <div
@@ -84,11 +90,11 @@ export default function HeaderCenter() {
               </>
             )}
           </div>
-        </div>
+        </form>
         <button
           onClick={() => searchHandler()}
           disabled={search == ""}
-          className="bg-mainColor disabled:opacity-50 h-full rounded-r-xl px-3 py-2 text-sm text-[white] hover:opacity-90 duration-300"
+          className="bg-mainColor dark:bg-mainColor disabled:cursor-not-allowed disabled:opacity-50 h-full rounded-r-xl px-3 py-2 text-sm text-[white] hover:opacity-90 duration-300"
         >
           Search
         </button>
