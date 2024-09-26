@@ -1,0 +1,19 @@
+adding infinite scroll
+add review edit
+complete webhook for chargily and  stripe
+deploy
+
+users Demos:
+user : 
+username : user demo
+email : user@demo.com
+passowrd: user@demo.com
+
+admin
+username : admin demo
+email : admin@admin.com
+password : admin@admin.com
+
+
+
+remove all passwords old api keys

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IRootState } from "../../store/store";
 import { io } from "socket.io-client";
 import customAxios from "../../axios/customAxios";
-import VideoChat from "../../components/messagesComps/VideoChat";
+import VideoChat from "../../components/messagesComps/VideoRoom";
 import Inbox from "../../components/messagesComps/Inbox";
 import { messagesActions } from "../../store/slices/messagesSlice";
 
@@ -31,7 +31,7 @@ const Messages = () => {
           ? "http://localhost:3002"
           : "https://socialsync1.production-server.tech",
         {
-          auth: { userId: null },
+          auth: { userId: user._id },
           reconnectionDelay: 1000,
           reconnectionDelayMax: 5000,
           reconnectionAttempts: Infinity,
@@ -98,7 +98,7 @@ const Messages = () => {
         setActiveInbox={setActiveInbox}
         setActiveInboxIndex={setActiveInboxIndex}
       />
-      <VideoChat />
+      {/* <VideoChat /> */}
     </div>
   );
 };

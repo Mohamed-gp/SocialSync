@@ -18,11 +18,20 @@ interface PostProps {
 const Post = ({ post }: PostProps) => {
   const user = useSelector((state: IRootState) => state.auth.user);
   const [isPostCommentsShow, setIsPostCommentsShow] = useState(false);
+  const [postLikes, setPostLikes] = useState(post?.likes);
 
   const [isPostPhotosModelOpen, setIsPostPhotosModelOpen] = useState(false);
   const copy = () => {
     const input = document.createElement("input");
-    input.setAttribute("value", location.href + "posts/" + post._id);
+    input.setAttribute(
+      "value",
+      (import.meta.env.VITE_ENV == "development"
+        ? "http://localhost:5002"
+        : "https://socialsync.production-server.tech") +
+        "/posts/" +
+        post._id
+    );
+
     document.body.appendChild(input);
     input.select();
     const result = document.execCommand("copy");
@@ -66,9 +75,13 @@ const Post = ({ post }: PostProps) => {
   };
   const likeHandler = async () => {
     try {
-      const { data } = await customAxios.post("/posts/like", {});
+      if (!user) {
+        toast.error("you must be logged in to like a post");
+        return;
+      }
+      const { data } = await customAxios.post(`/posts/${post?._id}/like`);
+      setPostLikes(data.data);
       toast.success(data.message);
-      
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error);
@@ -161,15 +174,21 @@ const Post = ({ post }: PostProps) => {
             onClick={() => likeHandler()}
             className="flex gap-2 items-center justify-center flex-1 duration-300 hover:text-mainColor cursor-pointer"
           >
-            <FaHeart className="" />
-            <p>20</p>
+            <FaHeart
+              style={
+                postLikes.find((userId: string) => userId == user?._id)
+                  ? { color: "#00c2ff" }
+                  : {}
+              }
+            />
+            <p>{postLikes?.length}</p>
           </div>
           <div
             onClick={() => setIsPostCommentsShow(true)}
             className="flex gap-2 items-center justify-center flex-1 duration-300 hover:text-mainColor cursor-pointer border-x-2"
           >
             <FaComment />
-            <p>20</p>
+            <p>{post?.comments?.length}</p>
           </div>
           <div
             className="flex gap-2 items-center flex-1 cursor-pointer justify-center duration-300 hover:text-mainColor"

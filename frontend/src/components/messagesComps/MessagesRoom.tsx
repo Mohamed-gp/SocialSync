@@ -42,7 +42,7 @@ const MessagesRoom = ({ activeInbox }: MessagesRoomProps) => {
       </div>
       <div className="flex flex-col rounded-xl bg-white dark:bg-darkThemeBG dark:text-black px-6 py-6 gap-6 flex-1 max-h-[300px] overflow-auto mx-4">
         {activeInbox?.messages?.map((message: any) => (
-          <div key={message._id + "msg"}>
+          <div key={message._id + "msg room"}>
             {message?.userId?._id === user?._id ? (
               <div className="flex items-end gap-2">
                 <p className="bg-mainColor text-white p-6 rounded-xl w-full">

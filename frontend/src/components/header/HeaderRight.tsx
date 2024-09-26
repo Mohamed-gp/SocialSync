@@ -110,6 +110,13 @@ export default function HeaderRight() {
                 <>
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
+                    to="/"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <li>Home</li>
+                  </Link>
+                  <Link
+                    className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to="/login"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -126,6 +133,13 @@ export default function HeaderRight() {
               )}
               {user && (
                 <>
+                  <Link
+                    className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
+                    to="/"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <li>Home</li>
+                  </Link>
                   <Link
                     className="px-6 py-1 hover:bg-mainColor duration-300 hover:text-white"
                     to={`/profile/${user?._id}`}
@@ -150,7 +164,7 @@ export default function HeaderRight() {
                   <div
                     onClick={() => {
                       logoutHandler();
-                      setIsMenuOpen(false); 
+                      setIsMenuOpen(false);
                     }}
                     className="px-6 py-1 cursor-pointer hover:bg-mainColor duration-300 hover:text-white"
                   >

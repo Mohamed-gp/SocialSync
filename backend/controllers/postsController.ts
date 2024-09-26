@@ -6,6 +6,7 @@ import User from "../models/User";
 import multer from "multer";
 import removeFiles from "../utils/fs/fs";
 import { verifyCreatePost } from "../utils/joi/postValidation";
+import { ObjectId } from "mongoose";
 
 /**
  *
@@ -16,14 +17,69 @@ import { verifyCreatePost } from "../utils/joi/postValidation";
  *
  */
 const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
-  const posts = await Post.find().populate("user");
-  const my: any = [];
+  const posts = await Post.find()
+    .populate("user", "-password") // Populate user and exclude password
+    .populate({
+      path: "comments",
+      populate: [
+        {
+          path: "replies",
+          model: "comment", // Ensure the model name matches the one used in your schema
+          populate: {
+            path: "user",
+            model: "User", // Ensure the model name matches the one used in your schema
+          },
+        },
+        {
+          path: "comment",
+          model: "comment", // Ensure the model name matches the one used in your schema
+          populate: {
+            path: "user",
+            model: "User", // Ensure the model name matches the one used in your schema
+          },
+        },
+      ],
+    });
   posts?.forEach((post: any) => {
     post.user.password = "";
   });
   return res.status(200).json({
     message: "fetched Successfully",
     data: posts,
+  });
+};
+const renewPostComments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const posts = await Post.findById(req.params.postId)
+    .populate("user", "-password") // Populate user and exclude password
+    .populate({
+      path: "comments",
+      populate: [
+        {
+          path: "replies",
+          model: "comment", // Ensure the model name matches the one used in your schema
+          populate: {
+            path: "user",
+            model: "User", // Ensure the model name matches the one used in your schema
+          },
+        },
+        {
+          path: "comment",
+          model: "comment", // Ensure the model name matches the one used in your schema
+          populate: {
+            path: "user",
+            model: "User", // Ensure the model name matches the one used in your schema
+          },
+        },
+      ],
+    });
+
+  return res.status(200).json({
+    message: "fetched Successfully",
+    data: posts.comments,
   });
 };
 /**
@@ -152,6 +208,39 @@ const savePost = async (
   }
 };
 
+const togglePostLike = async (
+  req: authRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user.id;
+    const post = await Post.findById(postId);
+
+    const isLiked = post?.likes.find(
+      (like: ObjectId) => like.toString() == userId
+    );
+    if (isLiked) {
+      post.likes = post.likes.filter(
+        (like: ObjectId) => like.toString() != userId
+      );
+    } else {
+      if (!post.likes || post.likes.length == 0) {
+        post.likes = [userId];
+      } else {
+        post.likes.push(userId);
+      }
+    }
+    await post.save();
+    return res
+      .status(200)
+      .json({ data: post.likes, message: "like toggled successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getPostPictures = async (
   req: Request,
   res: Response,
@@ -179,4 +268,6 @@ export {
   deletePost,
   savePost,
   getPostPictures,
+  renewPostComments,
+  togglePostLike,
 };

@@ -20,22 +20,10 @@ const socketInit = (server: object) => {
     }
     io.emit("onlineUsers", onlineUsers);
 
-    socket.on("callUser", (data) => {
-      io.to(data.userToCall).emit("callUser", {
-        signal: data.signalData,
-        from: data.from,
-        name: data.name,
-      });
-    });
-
-    socket.on("answerCall", (data) => {
-      io.to(data.to).emit("callAccepted", data.signal);
-    });
-
+    // Handle user disconnecting
     socket.on("disconnect", () => {
       console.log("User disconnected:", userId);
       onlineUsers = onlineUsers.filter((id) => id != userId);
-      socket.broadcast.emit("callEnded");
       io.emit("onlineUsers", onlineUsers);
     });
   });

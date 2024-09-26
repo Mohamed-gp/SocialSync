@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RefObject } from "react";
 import { Socket } from "socket.io-client";
-import Peer from "simple-peer"
 
 interface InitialState {
   globalSocket: null | Socket;
@@ -13,10 +12,10 @@ interface InitialState {
   callEnded: boolean;
   name: string | null;
   stream: MediaStream | null;
-  userVideoRef: any;
-  myVideoRef: any;
-  connectionRef: any;
+  userVideoRef: RefObject<HTMLVideoElement> | null;
+  connectionRef: RefObject<RTCPeerConnection | null> | null;
 }
+
 const initialState: InitialState = {
   globalSocket: null,
   caller: null,
@@ -28,14 +27,14 @@ const initialState: InitialState = {
   name: null,
   stream: null,
   userVideoRef: null,
-  myVideoRef: null,
   connectionRef: null,
 };
+
 const messagesSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {
-    setGlobalSocket(state, action) {
+    setGlobalSocket(state, action: PayloadAction<Socket | null>) {
       state.globalSocket = action.payload;
     },
     setCaller: (state, action: PayloadAction<string | null>) => {
@@ -68,15 +67,9 @@ const messagesSlice = createSlice({
     ) => {
       state.userVideoRef = action.payload;
     },
-    setMyVideoRef: (
-      state,
-      action: PayloadAction<RefObject<HTMLVideoElement>>
-    ) => {
-      state.myVideoRef = action.payload;
-    },
     setConnectionRef: (
       state,
-      action: PayloadAction<RefObject<Peer.Instance | null>>
+      action: PayloadAction<RefObject<RTCPeerConnection | null>>
     ) => {
       state.connectionRef = action.payload;
     },

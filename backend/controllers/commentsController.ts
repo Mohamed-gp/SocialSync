@@ -8,7 +8,7 @@ const addComment = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { content, userId } = req.body;
+  const { text, userId } = req.body;
   const { postId } = req.params;
   try {
     if (req.user.id != userId) {
@@ -18,15 +18,20 @@ const addComment = async (
     }
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: "product not found", data: null });
+      return res.status(404).json({ message: "post not found", data: null });
     }
 
     const comment = await Comment.create({
-      content: content,
+      text: text,
       post: postId,
       user: userId,
     });
-
+    if (!post.comments) {
+      post.comments = [{ comment: comment?._id, replies: [] }];
+    } else {
+      post.comments.push({ comment: comment?._id, replies: [] });
+    }
+    await post.save();
     const comments = await Comment.find({ post: postId }).populate("user");
     comments.map((comment) => {
       comment.user.password = "";
@@ -57,6 +62,41 @@ const getComments = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const replyToComment = async (
+  req: authRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { postId, commentId } = req.params;
+    const { text } = req.body;
+    const post = await Post.findById(postId).populate("user");
+    console.log(post);
+    if (!post) {
+      return res.status(404).json({ message: "post not found", data: null });
+    }
+    const comment = post.comments.find(
+      (comment: any) => comment.comment.toString() == commentId
+    );
+    console.log(comment);
+    const newComment = await Comment.create({
+      text: text,
+      post: postId,
+      user: req.user.id,
+    });
+
+    comment.replies.push(newComment._id);
+    await post.save();
+    console.log(post);
+    console.log(comment);
+    console.log(comment.replies);
+    return res
+      .status(200)
+      .json({ data: comment, message: "comments fetched successfull" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const deleteComment = async (
   req: authRequest,
@@ -83,4 +123,4 @@ const deleteComment = async (
   }
 };
 
-export { addComment, getComments, deleteComment };
+export { addComment, getComments, deleteComment, replyToComment };

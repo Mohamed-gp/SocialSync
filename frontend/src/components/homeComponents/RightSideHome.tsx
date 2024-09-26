@@ -17,7 +17,7 @@ const RightSideHome = () => {
       );
       toast.success(data.message);
       dispatch(authActions.login(data.data));
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
     }
@@ -64,7 +64,7 @@ const RightSideHome = () => {
                 ) : (
                   <>
                     {user?.followers?.map((user) => (
-                      <div className="flex gap-2 items-center relative my-2 ">
+                      <div key={user?._id + "rightSideHome"} className="flex gap-2 items-center relative my-2 ">
                         <img
                           src={user?.profileImg}
                           alt="avatar"
