@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { authRequest } from "../interfaces/authInterface";
 
 const verifyToken = (req: authRequest, res: Response, next: NextFunction) => {
-  const token = req.cookies["token"];
+  const token = req.cookies["socialsync-token"];
   if (token) {
     try {
       const decodedPayload = jwt.verify(

@@ -48,7 +48,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
       }
     );
     res
-      .cookie("token", token, {
+      .cookie("socialsync-token", token, {
         httpOnly: true,
         sameSite: "None" as "none",
         maxAge: 1000 * 60 * 60 * 24 * 365,
@@ -114,7 +114,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
       { expiresIn: "1y" }
     );
     res
-      .cookie("token", token, {
+      .cookie("socialsync-token", token, {
         maxAge: 1000 * 60 * 60 * 24 * 365,
         httpOnly: true,
         secure: process.env.NODE_ENV == "developement" ? false : true,
@@ -152,7 +152,7 @@ const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
       );
       user.password = "";
       return res
-        .cookie("token", token, {
+        .cookie("socialsync-token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV == "developement" ? false : true,
           maxAge: 1000 * 60 * 60 * 24 * 365,
@@ -181,7 +181,7 @@ const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
       );
       user.password = "";
       return res
-        .cookie("token", token, {
+        .cookie("socialsync-token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV == "developement" ? false : true,
           maxAge: 1000 * 60 * 60 * 24 * 365,

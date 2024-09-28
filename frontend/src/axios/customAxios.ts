@@ -4,7 +4,7 @@ const customAxios = axios.create({
   baseURL:
     import.meta.env.VITE_ENV == "development"
       ? "http://localhost:3002/api"
-      : "https://swiftbuy1.production-server.tech/api",
+      : "https://socialsync1.production-server.tech/api",
   withCredentials: true,
 });
 
