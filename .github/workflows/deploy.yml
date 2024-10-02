@@ -1,0 +1,28 @@
+name: Deploy socialsync App to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Enable manual triggering
+
+jobs:
+  build:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [18.x] # Use Node.js 18.x
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Deploy to VPS
+        run: |
+          cd /home/mohamed/projects/SocialSync
+          git pull origin main
+          npm install --prefix back-end
+          npm install --prefix front-end
+          npm run build --prefix front-end
+          pm2 restart socialsync-backend
+          pm2 restart socialsync-frontend
