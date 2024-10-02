@@ -2,7 +2,7 @@ name: Deploy socialsync App to VPS
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch: # Enable manual triggering
 
 jobs:
