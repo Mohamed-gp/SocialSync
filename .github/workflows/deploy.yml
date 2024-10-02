@@ -20,9 +20,11 @@ jobs:
       - name: Deploy to VPS
         run: |
           cd /home/mohamed/projects/SocialSync
-          git pull origin main
+          git pull origin master
           npm install --prefix back-end
           npm install --prefix front-end
           npm run build --prefix front-end
           pm2 restart socialsync-backend
           pm2 restart socialsync-frontend
+
+          
