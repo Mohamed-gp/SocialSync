@@ -21,9 +21,9 @@ jobs:
         run: |
           cd /home/mohamed/projects/SocialSync
           git pull origin master
-          npm install --prefix back-end
-          npm install --prefix front-end
-          npm run build --prefix front-end
+          npm install --prefix backend
+          npm install --prefix frontend
+          npm run build --prefix frontend
           pm2 restart socialsync-backend
           pm2 restart socialsync-frontend
 
